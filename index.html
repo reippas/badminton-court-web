@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CourtMaster Skill-Balanced Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #1e293b; overflow: hidden; height: 100vh; }
+        .dashboard-grid { display: grid; grid-template-columns: 280px 1fr 340px; grid-template-rows: auto 1fr; height: 100vh; gap: 0.75rem; padding: 0.75rem; }
+        .scroll-area { overflow-y: auto; scrollbar-width: thin; }
+        .scroll-area::-webkit-scrollbar { width: 4px; }
+        .scroll-area::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .team-btn { flex: 1; text-align: center; padding: 0.4rem; border-radius: 0.6rem; border: 1px solid transparent; transition: all 0.2s; font-size: 11px; font-weight: 700; }
+        .team-btn.active { background-color: #2563eb; color: white; border-color: #1e40af; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2); }
+        .vertical-text { writing-mode: vertical-rl; transform: rotate(180deg); }
+        .logo-svg { width: 24px; height: 24px; fill: currentColor; }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="dashboard-grid">
+        <!-- Header -->
+        <header class="col-span-full bg-white px-5 py-2.5 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="text-blue-600">
+                    <svg class="logo-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2zm0 13.5l-4.5 2L12 5.5l4.5 12-4.5-2zM12 11c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                    </svg>
+                </div>
+                <h1 class="text-lg font-black text-slate-800 tracking-tighter">CourtMaster <span class="text-blue-600 font-black">PRO</span></h1>
+                <div class="flex bg-slate-100 p-1 rounded-lg ml-2">
+                    <button onclick="setMatchType('singles')" id="btn-singles" class="px-3 py-1 text-[9px] font-black rounded-md transition uppercase tracking-tighter">Singles</button>
+                    <button onclick="setMatchType('doubles')" id="btn-doubles" class="px-3 py-1 text-[9px] font-black rounded-md transition uppercase tracking-tighter">Doubles</button>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <span class="text-[9px] font-black text-slate-400 uppercase">Courts</span>
+                    <input type="number" id="court-count" value="2" min="1" class="w-10 bg-slate-50 border border-slate-200 rounded px-1.5 py-0.5 font-bold text-xs outline-none focus:ring-1 focus:ring-blue-500">
+                </div>
+                <button onclick="generateNextRound()" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-black text-[10px] hover:bg-blue-700 transition shadow-md uppercase tracking-widest">Generate Round</button>
+            </div>
+        </header>
+
+        <!-- Sidebar Left: Players -->
+        <aside class="flex flex-col gap-3 min-h-0">
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col min-h-0 h-full">
+                <h2 class="font-bold text-[10px] mb-3 uppercase tracking-widest text-slate-400">Player Setup</h2>
+                <div class="flex gap-1 mb-3">
+                    <input type="text" id="player-input" placeholder="Name..." class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-1 focus:ring-blue-500">
+                    <button onclick="addCustomPlayer()" class="bg-slate-800 text-white px-3 rounded-lg font-bold text-xs">Add</button>
+                </div>
+                <div class="flex-1 min-h-0 flex flex-col gap-4">
+                    <div class="flex-none">
+                        <p class="text-[8px] font-black text-slate-400 uppercase mb-2">Club Pool</p>
+                        <div id="predefined-list" class="flex flex-wrap gap-1 max-h-24 scroll-area pr-1"></div>
+                    </div>
+                    <div class="flex-1 min-h-0 flex flex-col">
+                        <p class="text-[8px] font-black text-slate-400 uppercase mb-2">Active & Fixed Teams</p>
+                        <div id="player-list" class="scroll-area flex-1 space-y-1.5 pr-1"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Center: Match Dashboard -->
+        <main class="flex flex-col gap-3 min-h-0">
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col flex-1 min-h-0">
+                <div id="round-header" class="flex justify-between items-center mb-4 hidden border-b pb-3 border-slate-50">
+                    <div>
+                        <h2 id="round-title" class="text-base font-black text-slate-800">Round #1</h2>
+                        <p id="round-mode-label" class="text-[8px] text-blue-500 font-bold uppercase tracking-widest"></p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="confirmRoundResults()" class="bg-green-600 text-white px-4 py-1.5 rounded-lg font-bold text-[10px] hover:bg-green-700 transition shadow-sm uppercase">Save Round</button>
+                        <button onclick="cancelRound()" class="text-red-500 text-[10px] font-bold px-2 uppercase">Cancel</button>
+                    </div>
+                </div>
+
+                <div id="court-grid" class="scroll-area flex-1 space-y-2 pr-1"></div>
+
+                <div id="no-round-ui" class="flex-1 flex flex-col items-center justify-center text-center opacity-30">
+                    <div class="text-5xl mb-2 text-blue-600">
+                        <svg class="w-16 h-16 mx-auto" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                            <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2zm0 13.5l-4.5 2L12 5.5l4.5 12-4.5-2zM12 11c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                        </svg>
+                    </div>
+                    <p class="text-[10px] font-black uppercase tracking-widest mt-4">Awaiting Generation</p>
+                </div>
+
+                <div id="rest-container" class="mt-4 p-3 bg-slate-50 rounded-xl hidden">
+                    <p class="text-[8px] font-black text-slate-400 uppercase mb-1.5">Waiting Bench</p>
+                    <div id="rest-list" class="text-[9px] font-bold text-slate-500 flex flex-wrap gap-2"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right: Stats & Reports -->
+        <aside class="flex flex-col gap-3 min-h-0">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-[40%] min-h-0 overflow-hidden">
+                <div class="px-4 py-2 border-b border-slate-50 bg-slate-50/50 flex justify-between">
+                    <h2 class="font-black text-[9px] uppercase tracking-widest text-slate-400">Live Ranking</h2>
+                </div>
+                <div class="scroll-area flex-1">
+                    <table class="w-full text-left text-[10px]">
+                        <tbody id="leaderboard-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-[60%] min-h-0 overflow-hidden">
+                <div class="px-4 py-2 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+                    <h2 class="font-black text-[9px] uppercase tracking-widest text-slate-400">Archived Reports</h2>
+                    <div class="flex gap-2">
+                        <button onclick="downloadHistory()" class="text-blue-600 text-[8px] font-black uppercase">Export</button>
+                        <button onclick="resetApp()" class="text-red-500 text-[8px] font-black uppercase">Wipe</button>
+                    </div>
+                </div>
+                <div id="history-list" class="scroll-area flex-1 p-2 space-y-2"></div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Notification -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-2 rounded-full opacity-0 pointer-events-none transition-all z-50 text-[9px] font-black shadow-xl uppercase tracking-widest"></div>
+
+    <script>
+        const CLUB_MEMBERS = ["Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hank", "Ivy", "Jack", "Karl", "Liam", "Mia", "Nora", "Owen", "Pia", "Quinn", "Rosa"];
+        let state = { players: [], matchType: 'doubles', numCourts: 2, currentRound: null, history: [], totalRounds: 0 };
+
+        function init() {
+            const saved = localStorage.getItem('badminton_sbmm_v2');
+            if (saved) state = JSON.parse(saved);
+            else state.players = CLUB_MEMBERS.map((n, i) => ({ id: 'p'+i, name: n, active: false, points: 0, wins: 0, losses: 0, rests: 0, fixedWith: null }));
+            refreshUI();
+        }
+
+        function save() { localStorage.setItem('badminton_sbmm_v2', JSON.stringify(state)); }
+
+        function refreshUI() {
+            document.getElementById('btn-singles').className = state.matchType === 'singles' ? "px-3 py-1 text-[9px] font-black rounded-md transition uppercase bg-white text-blue-600 shadow-sm" : "px-3 py-1 text-[9px] font-black rounded-md transition uppercase text-slate-400";
+            document.getElementById('btn-doubles').className = state.matchType === 'doubles' ? "px-3 py-1 text-[9px] font-black rounded-md transition uppercase bg-white text-blue-600 shadow-sm" : "px-3 py-1 text-[9px] font-black rounded-md transition uppercase text-slate-400";
+            renderSetup();
+            const header = document.getElementById('round-header');
+            const noRound = document.getElementById('no-round-ui');
+            const restBox = document.getElementById('rest-container');
+            if (state.currentRound) {
+                header.classList.remove('hidden'); noRound.classList.add('hidden'); restBox.classList.remove('hidden');
+                document.getElementById('round-mode-label').innerText = state.currentRound.type; renderRound();
+            } else {
+                header.classList.add('hidden'); noRound.classList.remove('hidden'); restBox.classList.add('hidden');
+                document.getElementById('court-grid').innerHTML = '';
+            }
+            renderLeaderboard(); renderHistory();
+        }
+
+        function setMatchType(type) { state.matchType = type; save(); refreshUI(); }
+        function togglePlayer(id) { const p = state.players.find(x => x.id === id); if (p) { p.active = !p.active; save(); refreshUI(); } }
+        function addCustomPlayer() {
+            const input = document.getElementById('player-input');
+            if (!input.value.trim()) return;
+            state.players.push({ id: 'c' + Date.now(), name: input.value.trim(), active: true, points: 0, wins: 0, losses: 0, rests: 0, fixedWith: null });
+            input.value = ''; save(); refreshUI();
+        }
+
+        function setFixedPartner(p1Id, partnerId) {
+            const p1 = state.players.find(p => p.id === p1Id);
+            if (p1.fixedWith) { const old = state.players.find(p => p.id === p1.fixedWith); if (old) old.fixedWith = null; }
+            if (partnerId !== "none") {
+                const p2 = state.players.find(p => p.id === partnerId);
+                if (p2.fixedWith) { const third = state.players.find(p => p.id === p2.fixedWith); if (third) third.fixedWith = null; }
+                p1.fixedWith = partnerId; p2.fixedWith = p1Id;
+            } else p1.fixedWith = null;
+            save(); refreshUI();
+        }
+
+        function generateNextRound() {
+            const active = state.players.filter(p => p.active);
+            const needed = state.matchType === 'singles' ? 2 : 4;
+            const courtInput = parseInt(document.getElementById('court-count').value) || 1;
+
+            if (active.length < needed) { showToast(`Min ${needed} players!`); return; }
+
+            // 1. Group into Units (Pairs or Individuals)
+            let units = [];
+            let handled = new Set();
+            active.forEach(p => {
+                if (handled.has(p.id)) return;
+                if (state.matchType === 'doubles' && p.fixedWith) {
+                    const partner = active.find(a => a.id === p.fixedWith);
+                    if (partner) {
+                        units.push({ 
+                            type: 'pair', 
+                            ids: [p.id, partner.id], 
+                            restScore: (p.rests + partner.rests) / 2,
+                            skillScore: (p.points + partner.points) / 2
+                        });
+                        handled.add(p.id); handled.add(partner.id);
+                        return;
+                    }
+                }
+                units.push({ type: 'single', ids: [p.id], restScore: p.rests, skillScore: p.points });
+                handled.add(p.id);
+            });
+
+            // 2. Selection Sort (Fairness first, Skill second)
+            units.sort((a, b) => {
+                const weightA = (a.restScore * 10000) + a.skillScore;
+                const weightB = (b.restScore * 10000) + b.skillScore;
+                return weightB - weightA;
+            });
+
+            // 3. Selection
+            let playPoolUnits = [];
+            let currentTotalSlots = 0;
+            const totalSlotsNeeded = courtInput * (state.matchType === 'singles' ? 2 : 4);
+
+            for (let u of units) {
+                if (currentTotalSlots + u.ids.length <= totalSlotsNeeded) {
+                    playPoolUnits.push(u);
+                    currentTotalSlots += u.ids.length;
+                }
+            }
+
+            // 4. Sort selection by Skill for tiering
+            playPoolUnits.sort((a, b) => b.skillScore - a.skillScore);
+
+            // 5. Build Matches from Units (Preserving Team Integrity)
+            let matches = [];
+            let pool = [...playPoolUnits];
+            const playersPerCourt = state.matchType === 'singles' ? 2 : 4;
+
+            for (let i = 0; i < courtInput; i++) {
+                if (pool.length === 0) break;
+                
+                let courtUnits = [];
+                let courtSlots = 0;
+                
+                // Fill units for one court
+                while(courtSlots < playersPerCourt && pool.length > 0) {
+                    if (courtSlots + pool[0].ids.length <= playersPerCourt) {
+                        const nextUnit = pool.shift();
+                        courtUnits.push(nextUnit);
+                        courtSlots += nextUnit.ids.length;
+                    } else {
+                        // Skip this unit (might be a pair that doesn't fit) and look for a single
+                        let sIdx = pool.findIndex(u => u.ids.length === 1);
+                        if (sIdx !== -1) {
+                            courtUnits.push(pool.splice(sIdx, 1)[0]);
+                            courtSlots += 1;
+                        } else break; // No units fit
+                    }
+                }
+
+                if (courtSlots < playersPerCourt) {
+                    // Return units to pool if court can't be filled
+                    pool.unshift(...courtUnits);
+                    break;
+                }
+
+                // Assign to Team 1 and Team 2
+                let team1 = [], team2 = [];
+                if (state.matchType === 'singles') {
+                    team1 = [courtUnits[0].ids[0]];
+                    team2 = [courtUnits[1].ids[0]];
+                } else {
+                    // Logic for Doubles Balancing
+                    if (courtUnits.length === 2) {
+                        // Two Pairs
+                        team1 = [...courtUnits[0].ids];
+                        team2 = [...courtUnits[1].ids];
+                    } else if (courtUnits.length === 3) {
+                        // One Pair and Two Singles
+                        const pair = courtUnits.find(u => u.type === 'pair');
+                        const singles = courtUnits.filter(u => u.type === 'single');
+                        team1 = [...pair.ids];
+                        team2 = [singles[0].ids[0], singles[1].ids[0]];
+                    } else {
+                        // Four Singles (1+4 vs 2+3)
+                        team1 = [courtUnits[0].ids[0], courtUnits[3].ids[0]];
+                        team2 = [courtUnits[1].ids[0], courtUnits[2].ids[0]];
+                    }
+                }
+                matches.push({ id: 'm'+i, court: i+1, team1, team2, winner: null });
+            }
+
+            // Identify resting
+            const playingIds = new Set();
+            matches.forEach(m => [...m.team1, ...m.team2].forEach(id => playingIds.add(id)));
+            const resting = active.filter(p => !playingIds.has(p.id)).map(p => p.id);
+
+            state.currentRound = { id: ++state.totalRounds, type: state.matchType, matches, resting };
+            save(); refreshUI();
+            showToast(`Generated Round #${state.totalRounds}`);
+        }
+
+        function renderSetup() {
+            const pred = document.getElementById('predefined-list');
+            const act = document.getElementById('player-list');
+            pred.innerHTML = '';
+            state.players.filter(p => !p.active).forEach(p => {
+                const b = document.createElement('button');
+                b.className = "bg-white border border-slate-200 px-2 py-1 rounded text-[8px] font-bold text-slate-500 hover:border-blue-300 transition uppercase";
+                b.innerText = p.name; b.onclick = () => togglePlayer(p.id);
+                pred.appendChild(b);
+            });
+            act.innerHTML = '';
+            const active = state.players.filter(p => p.active);
+            active.forEach(p => {
+                const d = document.createElement('div');
+                d.className = "bg-slate-50 p-2 rounded-xl border border-slate-100 flex flex-col gap-1";
+                const partners = active.filter(o => o.id !== p.id);
+                let opts = `<option value="none">Independent</option>`;
+                partners.forEach(o => opts += `<option value="${o.id}" ${p.fixedWith === o.id ? 'selected' : ''}>Pair: ${o.name}</option>`);
+                d.innerHTML = `<div class="flex justify-between items-center text-[9px] font-black"><span>${p.name}</span><button onclick="togglePlayer('${p.id}')" class="text-slate-300 hover:text-red-500">×</button></div><select onchange="setFixedPartner('${p.id}', this.value)" class="w-full bg-white text-[8px] font-bold border-none rounded py-0.5 text-blue-600 outline-none">${opts}</select>`;
+                act.appendChild(d);
+            });
+        }
+
+        function renderRound() {
+            const grid = document.getElementById('court-grid');
+            const restList = document.getElementById('rest-list');
+            document.getElementById('round-title').innerText = `Round #${state.currentRound.id}`;
+            grid.innerHTML = '';
+            state.currentRound.matches.forEach(m => {
+                const n = ids => ids.map(id => state.players.find(p => p.id === id).name).join(' + ');
+                const card = document.createElement('div');
+                card.className = "bg-slate-50/50 p-3 rounded-2xl border border-slate-100 flex items-center gap-3";
+                card.innerHTML = `<div class="text-[7px] font-black text-slate-300 uppercase vertical-text">Court ${m.court}</div><div class="flex flex-1 items-center gap-2"><button onclick="setWinner('${m.id}', 'team1')" class="team-btn ${m.winner === 'team1' ? 'active' : 'bg-white border-slate-100 text-slate-700'}">${n(m.team1)}</button><div class="text-[8px] font-black text-slate-200">VS</div><button onclick="setWinner('${m.id}', 'team2')" class="team-btn ${m.winner === 'team2' ? 'active' : 'bg-white border-slate-100 text-slate-700'}">${n(m.team2)}</button></div>`;
+                grid.appendChild(card);
+            });
+            restList.innerHTML = '';
+            state.currentRound.resting.forEach(id => {
+                const tag = document.createElement('span');
+                tag.className = "bg-white border border-slate-200 px-2 py-0.5 rounded-full shadow-sm";
+                tag.innerText = state.players.find(p => p.id === id).name;
+                restList.appendChild(tag);
+            });
+        }
+
+        function setWinner(mid, key) { const m = state.currentRound.matches.find(x => x.id === mid); m.winner = m.winner === key ? null : key; save(); renderRound(); }
+
+        function confirmRoundResults() {
+            const r = state.currentRound;
+            const entry = { id: r.id, type: r.type, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), matches: [], resting: r.resting.map(id => state.players.find(p => p.id === id).name) };
+            r.matches.forEach(m => {
+                const winners = m.winner === 'team1' ? m.team1 : (m.winner === 'team2' ? m.team2 : []);
+                const losers = m.winner === 'team1' ? m.team2 : (m.winner === 'team2' ? m.team1 : [...m.team1, ...m.team2]);
+                winners.forEach(id => { const p = state.players.find(x => x.id === id); p.points += 3; p.wins++; });
+                losers.forEach(id => { const p = state.players.find(x => x.id === id); p.points += 1; p.losses++; });
+                entry.matches.push({ court: m.court, winner: m.winner, t1: m.team1.map(id => state.players.find(p => p.id === id).name), t2: m.team2.map(id => state.players.find(p => p.id === id).name) });
+            });
+            r.resting.forEach(id => { const p = state.players.find(x => x.id === id); p.points += 2; p.rests++; });
+            state.history.unshift(entry); state.currentRound = null; save(); refreshUI();
+        }
+
+        function renderLeaderboard() {
+            const body = document.getElementById('leaderboard-body');
+            const active = state.players.filter(p => p.active).sort((a,b) => b.points - a.points);
+            body.innerHTML = '';
+            active.forEach((p, i) => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-50";
+                tr.innerHTML = `<td class="p-3 font-bold text-slate-300 w-8">#${i+1}</td><td class="p-3 font-bold text-slate-700">${p.name}</td><td class="p-3 text-right font-black text-blue-600">${p.points} <span class="text-[6px] text-slate-300 uppercase ml-1">pts</span></td>`;
+                body.appendChild(tr);
+            });
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('history-list'); list.innerHTML = '';
+            state.history.forEach(h => {
+                const d = document.createElement('div'); d.className = "p-3 bg-white border border-slate-200 rounded-2xl shadow-sm text-[10px]";
+                let mLogs = h.matches.map(m => `<div class="flex justify-between items-center py-1 border-b border-slate-50 last:border-0"><span class="text-[7px] font-black text-slate-300 mr-2">C${m.court}</span><div class="flex-1 text-center truncate"><span class="${m.winner === 'team1' ? 'text-green-600 font-black' : 'text-slate-400'}">${m.t1.join('+')}</span> <span class="mx-1 text-slate-200">v</span> <span class="${m.winner === 'team2' ? 'text-green-600 font-black' : 'text-slate-400'}">${m.t2.join('+')}</span></div></div>`).join('');
+                d.innerHTML = `<div class="flex justify-between items-center mb-2 border-b border-slate-50 pb-1.5"><span class="font-black text-[9px] uppercase tracking-tighter">RD #${h.id} <span class="text-blue-500 ml-1">(${h.type})</span></span><span class="text-slate-300 text-[8px]">${h.time}</span></div><div>${mLogs}</div><div class="mt-2 text-[7px] text-slate-400 font-bold uppercase tracking-widest">Rest: ${h.resting.join(', ') || 'None'}</div>`;
+                list.appendChild(d);
+            });
+        }
+
+        function cancelRound() { if(confirm("Discard round?")) { state.currentRound = null; save(); refreshUI(); } }
+        function resetApp() { if(confirm("Wipe all data?")) { localStorage.clear(); location.reload(); } }
+        function downloadHistory() { const blob = new Blob([JSON.stringify(state, null, 2)], {type: 'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'stats.json'; a.click(); }
+        function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.opacity = '1'; setTimeout(() => t.style.opacity = '0', 2500); }
+        window.onload = init;
+    </script>
+</body>
+</html>
