@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CourtMaster Skill-Balanced Dashboard</title>
+    <title>CourtMaster PRO Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
@@ -12,10 +12,9 @@
         .scroll-area { overflow-y: auto; scrollbar-width: thin; }
         .scroll-area::-webkit-scrollbar { width: 4px; }
         .scroll-area::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .team-btn { flex: 1; text-align: center; padding: 0.4rem; border-radius: 0.6rem; border: 1px solid transparent; transition: all 0.2s; font-size: 11px; font-weight: 700; }
+        .team-btn { flex: 1; text-align: center; padding: 0.3rem 0.2rem; border-radius: 0.5rem; border: 1px solid transparent; transition: all 0.2s; font-size: 11px; font-weight: 700; min-width: 0; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .team-btn.active { background-color: #2563eb; color: white; border-color: #1e40af; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2); }
         .vertical-text { writing-mode: vertical-rl; transform: rotate(180deg); }
-        .logo-svg { width: 24px; height: 24px; fill: currentColor; }
     </style>
 </head>
 <body class="antialiased">
@@ -24,12 +23,16 @@
         <header class="col-span-full bg-white px-5 py-2.5 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <div class="text-blue-600">
-                    <svg class="logo-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2zm0 13.5l-4.5 2L12 5.5l4.5 12-4.5-2zM12 11c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                    <!-- Custom Shuttlecock SVG -->
+                    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 18C13.6569 18 15 16.6569 15 15C15 13.3431 13.6569 12 12 12C10.3431 12 9 13.3431 9 15C9 16.6569 10.3431 18 12 18Z" fill="currentColor"/>
+                        <path d="M9 13.5L5 3L12 5L19 3L15 13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 8H16" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+                        <path d="M7 11H17" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
                     </svg>
                 </div>
-                <h1 class="text-lg font-black text-slate-800 tracking-tighter">CourtMaster <span class="text-blue-600 font-black">PRO</span></h1>
-                <div class="flex bg-slate-100 p-1 rounded-lg ml-2">
+                <h1 class="text-lg font-black text-slate-800 tracking-tighter leading-none">CourtMaster <span class="text-blue-600">PRO</span></h1>
+                <div class="flex bg-slate-100 p-1 rounded-lg ml-4">
                     <button onclick="setMatchType('singles')" id="btn-singles" class="px-3 py-1 text-[9px] font-black rounded-md transition uppercase tracking-tighter">Singles</button>
                     <button onclick="setMatchType('doubles')" id="btn-doubles" class="px-3 py-1 text-[9px] font-black rounded-md transition uppercase tracking-tighter">Doubles</button>
                 </div>
@@ -37,9 +40,9 @@
             <div class="flex items-center gap-4">
                 <div class="flex items-center gap-2">
                     <span class="text-[9px] font-black text-slate-400 uppercase">Courts</span>
-                    <input type="number" id="court-count" value="2" min="1" class="w-10 bg-slate-50 border border-slate-200 rounded px-1.5 py-0.5 font-bold text-xs outline-none focus:ring-1 focus:ring-blue-500">
+                    <input type="number" id="court-count" value="2" min="1" class="w-10 bg-slate-50 border border-slate-200 rounded px-1.5 py-1 font-bold text-xs outline-none focus:ring-1 focus:ring-blue-500">
                 </div>
-                <button onclick="generateNextRound()" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-black text-[10px] hover:bg-blue-700 transition shadow-md uppercase tracking-widest">Generate Round</button>
+                <button onclick="generateNextRound()" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-black text-[11px] hover:bg-blue-700 transition shadow-md uppercase tracking-widest active:scale-95">Generate Round</button>
             </div>
         </header>
 
@@ -48,7 +51,7 @@
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col min-h-0 h-full">
                 <h2 class="font-bold text-[10px] mb-3 uppercase tracking-widest text-slate-400">Player Setup</h2>
                 <div class="flex gap-1 mb-3">
-                    <input type="text" id="player-input" placeholder="Name..." class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-1 focus:ring-blue-500">
+                    <input type="text" id="player-input" placeholder="New player..." class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs outline-none">
                     <button onclick="addCustomPlayer()" class="bg-slate-800 text-white px-3 rounded-lg font-bold text-xs">Add</button>
                 </div>
                 <div class="flex-1 min-h-0 flex flex-col gap-4">
@@ -57,7 +60,7 @@
                         <div id="predefined-list" class="flex flex-wrap gap-1 max-h-24 scroll-area pr-1"></div>
                     </div>
                     <div class="flex-1 min-h-0 flex flex-col">
-                        <p class="text-[8px] font-black text-slate-400 uppercase mb-2">Active & Fixed Teams</p>
+                        <p class="text-[8px] font-black text-slate-400 uppercase mb-2">Active Units</p>
                         <div id="player-list" class="scroll-area flex-1 space-y-1.5 pr-1"></div>
                     </div>
                 </div>
@@ -73,25 +76,26 @@
                         <p id="round-mode-label" class="text-[8px] text-blue-500 font-bold uppercase tracking-widest"></p>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="confirmRoundResults()" class="bg-green-600 text-white px-4 py-1.5 rounded-lg font-bold text-[10px] hover:bg-green-700 transition shadow-sm uppercase">Save Round</button>
-                        <button onclick="cancelRound()" class="text-red-500 text-[10px] font-bold px-2 uppercase">Cancel</button>
+                        <button onclick="confirmRoundResults()" class="bg-green-600 text-white px-4 py-1.5 rounded-lg font-bold text-[10px] hover:bg-green-700 transition shadow-sm uppercase">Register Results</button>
+                        <button onclick="cancelRound()" class="text-red-500 text-[10px] font-bold px-2 uppercase hover:underline">Cancel</button>
                     </div>
                 </div>
 
                 <div id="court-grid" class="scroll-area flex-1 space-y-2 pr-1"></div>
 
                 <div id="no-round-ui" class="flex-1 flex flex-col items-center justify-center text-center opacity-30">
-                    <div class="text-5xl mb-2 text-blue-600">
-                        <svg class="w-16 h-16 mx-auto" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
-                            <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2zm0 13.5l-4.5 2L12 5.5l4.5 12-4.5-2zM12 11c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                    <div class="text-blue-100 mb-2">
+                        <svg class="w-24 h-24 mx-auto" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 18C13.6569 18 15 16.6569 15 15C15 13.3431 13.6569 12 12 12C10.3431 12 9 13.3431 9 15C9 16.6569 10.3431 18 12 18Z" fill="currentColor"/>
+                            <path d="M9 13.5L5 3L12 5L19 3L15 13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </div>
-                    <p class="text-[10px] font-black uppercase tracking-widest mt-4">Awaiting Generation</p>
+                    <p class="text-[10px] font-black uppercase tracking-widest mt-4">Awaiting Round Generation</p>
                 </div>
 
                 <div id="rest-container" class="mt-4 p-3 bg-slate-50 rounded-xl hidden">
-                    <p class="text-[8px] font-black text-slate-400 uppercase mb-1.5">Waiting Bench</p>
-                    <div id="rest-list" class="text-[9px] font-bold text-slate-500 flex flex-wrap gap-2"></div>
+                    <p class="text-[8px] font-black text-slate-400 uppercase mb-1.5">Waiting Bench (Resting Pool)</p>
+                    <div id="rest-list" class="text-[10px] font-bold text-slate-600 flex flex-wrap gap-2"></div>
                 </div>
             </div>
         </main>
@@ -99,7 +103,7 @@
         <!-- Right: Stats & Reports -->
         <aside class="flex flex-col gap-3 min-h-0">
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-[40%] min-h-0 overflow-hidden">
-                <div class="px-4 py-2 border-b border-slate-50 bg-slate-50/50 flex justify-between">
+                <div class="px-4 py-2 border-b border-slate-50 bg-slate-50/50">
                     <h2 class="font-black text-[9px] uppercase tracking-widest text-slate-400">Live Ranking</h2>
                 </div>
                 <div class="scroll-area flex-1">
@@ -113,8 +117,8 @@
                 <div class="px-4 py-2 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
                     <h2 class="font-black text-[9px] uppercase tracking-widest text-slate-400">Archived Reports</h2>
                     <div class="flex gap-2">
-                        <button onclick="downloadHistory()" class="text-blue-600 text-[8px] font-black uppercase">Export</button>
-                        <button onclick="resetApp()" class="text-red-500 text-[8px] font-black uppercase">Wipe</button>
+                        <button onclick="downloadHistory()" class="text-blue-600 text-[8px] font-black uppercase hover:underline">Export</button>
+                        <button onclick="resetApp()" class="text-red-500 text-[8px] font-black uppercase hover:underline">Wipe</button>
                     </div>
                 </div>
                 <div id="history-list" class="scroll-area flex-1 p-2 space-y-2"></div>
@@ -130,13 +134,13 @@
         let state = { players: [], matchType: 'doubles', numCourts: 2, currentRound: null, history: [], totalRounds: 0 };
 
         function init() {
-            const saved = localStorage.getItem('badminton_sbmm_v2');
+            const saved = localStorage.getItem('badminton_pro_v5');
             if (saved) state = JSON.parse(saved);
             else state.players = CLUB_MEMBERS.map((n, i) => ({ id: 'p'+i, name: n, active: false, points: 0, wins: 0, losses: 0, rests: 0, fixedWith: null }));
             refreshUI();
         }
 
-        function save() { localStorage.setItem('badminton_sbmm_v2', JSON.stringify(state)); }
+        function save() { localStorage.setItem('badminton_pro_v5', JSON.stringify(state)); }
 
         function refreshUI() {
             document.getElementById('btn-singles').className = state.matchType === 'singles' ? "px-3 py-1 text-[9px] font-black rounded-md transition uppercase bg-white text-blue-600 shadow-sm" : "px-3 py-1 text-[9px] font-black rounded-md transition uppercase text-slate-400";
@@ -147,7 +151,9 @@
             const restBox = document.getElementById('rest-container');
             if (state.currentRound) {
                 header.classList.remove('hidden'); noRound.classList.add('hidden'); restBox.classList.remove('hidden');
-                document.getElementById('round-mode-label').innerText = state.currentRound.type; renderRound();
+                document.getElementById('round-mode-label').innerText = state.currentRound.type; 
+                document.getElementById('round-title').innerText = `Round #${state.currentRound.id}`;
+                renderRound();
             } else {
                 header.classList.add('hidden'); noRound.classList.remove('hidden'); restBox.classList.add('hidden');
                 document.getElementById('court-grid').innerHTML = '';
@@ -175,124 +181,133 @@
             save(); refreshUI();
         }
 
+        // --- NEW SELECTION STABILIZER ENGINE ---
         function generateNextRound() {
             const active = state.players.filter(p => p.active);
-            const needed = state.matchType === 'singles' ? 2 : 4;
+            const playersPerMatch = state.matchType === 'singles' ? 2 : 4;
             const courtInput = parseInt(document.getElementById('court-count').value) || 1;
+            const totalSlots = courtInput * playersPerMatch;
 
-            if (active.length < needed) { showToast(`Min ${needed} players!`); return; }
+            if (active.length < playersPerMatch) { showToast(`Min ${playersPerMatch} players!`); return; }
 
-            // 1. Group into Units (Pairs or Individuals)
-            let units = [];
-            let handled = new Set();
-            active.forEach(p => {
-                if (handled.has(p.id)) return;
-                if (state.matchType === 'doubles' && p.fixedWith) {
-                    const partner = active.find(a => a.id === p.fixedWith);
-                    if (partner) {
-                        units.push({ 
-                            type: 'pair', 
-                            ids: [p.id, partner.id], 
-                            restScore: (p.rests + partner.rests) / 2,
-                            skillScore: (p.points + partner.points) / 2
-                        });
-                        handled.add(p.id); handled.add(partner.id);
-                        return;
-                    }
-                }
-                units.push({ type: 'single', ids: [p.id], restScore: p.rests, skillScore: p.points });
-                handled.add(p.id);
-            });
-
-            // 2. Selection Sort (Fairness first, Skill second)
-            units.sort((a, b) => {
-                const weightA = (a.restScore * 10000) + a.skillScore;
-                const weightB = (b.restScore * 10000) + b.skillScore;
+            // 1. Sort all active players by rest priority
+            let ranked = [...active].sort((a, b) => {
+                const weightA = (a.rests * 10000) + a.points;
+                const weightB = (b.rests * 10000) + b.points;
                 return weightB - weightA;
             });
 
-            // 3. Selection
-            let playPoolUnits = [];
-            let currentTotalSlots = 0;
-            const totalSlotsNeeded = courtInput * (state.matchType === 'singles' ? 2 : 4);
+            // 2. Select initial players based on rank
+            let selectionCount = Math.min(totalSlots, active.length);
+            // Ensure we pick a multiple of the court size if we can't fill everything
+            selectionCount = Math.floor(selectionCount / playersPerMatch) * playersPerMatch;
+            
+            let selection = ranked.slice(0, selectionCount);
+            let bench = ranked.slice(selectionCount);
 
-            for (let u of units) {
-                if (currentTotalSlots + u.ids.length <= totalSlotsNeeded) {
-                    playPoolUnits.push(u);
-                    currentTotalSlots += u.ids.length;
+            // 3. Stabilize Selection (Enforce Fixed Pairs)
+            // If A is in selection but partner B is on bench, we must decide:
+            // - Pull B from bench into selection (dropping weakest selection member)
+            // - Push A from selection to bench (pulling strongest bench member)
+            let stable = false;
+            let iterations = 0;
+            while (!stable && iterations < 50) {
+                stable = true;
+                iterations++;
+                
+                for (let i = 0; i < selection.length; i++) {
+                    const p = selection[i];
+                    if (p.fixedWith) {
+                        const partnerIdx = selection.findIndex(s => s.id === p.fixedWith);
+                        if (partnerIdx === -1) {
+                            // Partner is on the bench
+                            const partner = bench.find(b => b.id === p.fixedWith);
+                            if (partner) {
+                                // Find weakest non-fixed player in selection to drop
+                                // OR drop p if bringing partner is mathematically worse
+                                const weakestInSelection = [...selection]
+                                    .filter(s => s.id !== p.id) // Can't drop the current person
+                                    .sort((a, b) => (a.rests * 10000 + a.points) - (b.rests * 10000 + b.points))[0];
+                                
+                                // Decision logic: Compare pulling partner vs dropping self
+                                // We pull partner if there is someone "weak" to drop
+                                if (weakestInSelection) {
+                                    selection = selection.filter(s => s.id !== weakestInSelection.id);
+                                    selection.push(partner);
+                                    bench = bench.filter(b => b.id !== partner.id);
+                                    bench.push(weakestInSelection);
+                                    stable = false;
+                                    break;
+                                } else {
+                                    // Deadlock or too many fixed pairs. Drop p.
+                                    selection = selection.filter(s => s.id !== p.id);
+                                    const nextBest = bench.filter(b => b.id !== partner.id)[0];
+                                    if (nextBest) {
+                                        selection.push(nextBest);
+                                        bench = bench.filter(b => b.id !== nextBest.id);
+                                    }
+                                    bench.push(p);
+                                    stable = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
-            // 4. Sort selection by Skill for tiering
-            playPoolUnits.sort((a, b) => b.skillScore - a.skillScore);
-
-            // 5. Build Matches from Units (Preserving Team Integrity)
+            // 4. Final court assignment from stable selection
+            selection.sort((a, b) => b.points - a.points); // Sort by skill for tiering
+            
             let matches = [];
-            let pool = [...playPoolUnits];
-            const playersPerCourt = state.matchType === 'singles' ? 2 : 4;
+            let pool = [...selection];
+            const courtCount = Math.floor(pool.length / playersPerMatch);
 
-            for (let i = 0; i < courtInput; i++) {
-                if (pool.length === 0) break;
-                
-                let courtUnits = [];
-                let courtSlots = 0;
-                
-                // Fill units for one court
-                while(courtSlots < playersPerCourt && pool.length > 0) {
-                    if (courtSlots + pool[0].ids.length <= playersPerCourt) {
-                        const nextUnit = pool.shift();
-                        courtUnits.push(nextUnit);
-                        courtSlots += nextUnit.ids.length;
-                    } else {
-                        // Skip this unit (might be a pair that doesn't fit) and look for a single
-                        let sIdx = pool.findIndex(u => u.ids.length === 1);
-                        if (sIdx !== -1) {
-                            courtUnits.push(pool.splice(sIdx, 1)[0]);
-                            courtSlots += 1;
-                        } else break; // No units fit
-                    }
-                }
+            for (let i = 0; i < courtCount; i++) {
+                const courtTier = pool.splice(0, playersPerMatch);
+                let team1, team2;
 
-                if (courtSlots < playersPerCourt) {
-                    // Return units to pool if court can't be filled
-                    pool.unshift(...courtUnits);
-                    break;
-                }
-
-                // Assign to Team 1 and Team 2
-                let team1 = [], team2 = [];
                 if (state.matchType === 'singles') {
-                    team1 = [courtUnits[0].ids[0]];
-                    team2 = [courtUnits[1].ids[0]];
+                    team1 = [courtTier[0].id];
+                    team2 = [courtTier[1].id];
                 } else {
-                    // Logic for Doubles Balancing
-                    if (courtUnits.length === 2) {
-                        // Two Pairs
-                        team1 = [...courtUnits[0].ids];
-                        team2 = [...courtUnits[1].ids];
-                    } else if (courtUnits.length === 3) {
-                        // One Pair and Two Singles
-                        const pair = courtUnits.find(u => u.type === 'pair');
-                        const singles = courtUnits.filter(u => u.type === 'single');
-                        team1 = [...pair.ids];
-                        team2 = [singles[0].ids[0], singles[1].ids[0]];
-                    } else {
-                        // Four Singles (1+4 vs 2+3)
-                        team1 = [courtUnits[0].ids[0], courtUnits[3].ids[0]];
-                        team2 = [courtUnits[1].ids[0], courtUnits[2].ids[0]];
-                    }
+                    // Snake pairing (1+4 vs 2+3) while respecting existing pairs
+                    // We check if any players are already paired
+                    let assigned = new Set();
+                    let t1 = [], t2 = [];
+
+                    // Try to keep pairs together
+                    courtTier.forEach(p => {
+                        if (assigned.has(p.id)) return;
+                        if (p.fixedWith) {
+                            const partner = courtTier.find(ct => ct.id === p.fixedWith);
+                            if (partner) {
+                                if (t1.length === 0) t1 = [p.id, partner.id];
+                                else t2 = [p.id, partner.id];
+                                assigned.add(p.id); assigned.add(partner.id);
+                            }
+                        }
+                    });
+
+                    // Fill remaining slots
+                    courtTier.forEach(p => {
+                        if (assigned.has(p.id)) return;
+                        if (t1.length < 2) t1.push(p.id);
+                        else t2.push(p.id);
+                        assigned.add(p.id);
+                    });
+
+                    team1 = t1; team2 = t2;
                 }
                 matches.push({ id: 'm'+i, court: i+1, team1, team2, winner: null });
             }
 
-            // Identify resting
-            const playingIds = new Set();
-            matches.forEach(m => [...m.team1, ...m.team2].forEach(id => playingIds.add(id)));
+            const playingIds = new Set(selection.map(s => s.id));
             const resting = active.filter(p => !playingIds.has(p.id)).map(p => p.id);
 
             state.currentRound = { id: ++state.totalRounds, type: state.matchType, matches, resting };
             save(); refreshUI();
-            showToast(`Generated Round #${state.totalRounds}`);
+            showToast(`Round #${state.totalRounds} Generated`);
         }
 
         function renderSetup() {
@@ -309,11 +324,11 @@
             const active = state.players.filter(p => p.active);
             active.forEach(p => {
                 const d = document.createElement('div');
-                d.className = "bg-slate-50 p-2 rounded-xl border border-slate-100 flex flex-col gap-1";
+                d.className = "bg-slate-50 p-1.5 rounded-lg border border-slate-100 flex flex-col gap-0.5";
                 const partners = active.filter(o => o.id !== p.id);
                 let opts = `<option value="none">Independent</option>`;
                 partners.forEach(o => opts += `<option value="${o.id}" ${p.fixedWith === o.id ? 'selected' : ''}>Pair: ${o.name}</option>`);
-                d.innerHTML = `<div class="flex justify-between items-center text-[9px] font-black"><span>${p.name}</span><button onclick="togglePlayer('${p.id}')" class="text-slate-300 hover:text-red-500">×</button></div><select onchange="setFixedPartner('${p.id}', this.value)" class="w-full bg-white text-[8px] font-bold border-none rounded py-0.5 text-blue-600 outline-none">${opts}</select>`;
+                d.innerHTML = `<div class="flex justify-between items-center text-[9px] font-black"><span>${p.name}</span><button onclick="togglePlayer('${p.id}')" class="text-slate-300 hover:text-red-500">×</button></div><select onchange="setFixedPartner('${p.id}', this.value)" class="w-full bg-white text-[8px] font-bold border-none rounded py-0 text-blue-600 outline-none">${opts}</select>`;
                 act.appendChild(d);
             });
         }
@@ -321,13 +336,12 @@
         function renderRound() {
             const grid = document.getElementById('court-grid');
             const restList = document.getElementById('rest-list');
-            document.getElementById('round-title').innerText = `Round #${state.currentRound.id}`;
             grid.innerHTML = '';
             state.currentRound.matches.forEach(m => {
                 const n = ids => ids.map(id => state.players.find(p => p.id === id).name).join(' + ');
                 const card = document.createElement('div');
-                card.className = "bg-slate-50/50 p-3 rounded-2xl border border-slate-100 flex items-center gap-3";
-                card.innerHTML = `<div class="text-[7px] font-black text-slate-300 uppercase vertical-text">Court ${m.court}</div><div class="flex flex-1 items-center gap-2"><button onclick="setWinner('${m.id}', 'team1')" class="team-btn ${m.winner === 'team1' ? 'active' : 'bg-white border-slate-100 text-slate-700'}">${n(m.team1)}</button><div class="text-[8px] font-black text-slate-200">VS</div><button onclick="setWinner('${m.id}', 'team2')" class="team-btn ${m.winner === 'team2' ? 'active' : 'bg-white border-slate-100 text-slate-700'}">${n(m.team2)}</button></div>`;
+                card.className = "bg-slate-50/50 p-2 rounded-xl border border-slate-100 flex items-center gap-2";
+                card.innerHTML = `<div class="text-[7px] font-black text-slate-300 uppercase vertical-text">C${m.court}</div><div class="flex flex-1 items-center gap-1.5"><button onclick="setWinner('${m.id}', 'team1')" class="team-btn truncate ${m.winner === 'team1' ? 'active' : 'bg-white border-slate-100 text-slate-700'}">${n(m.team1)}</button><div class="text-[8px] font-black text-slate-200">VS</div><button onclick="setWinner('${m.id}', 'team2')" class="team-btn truncate ${m.winner === 'team2' ? 'active' : 'bg-white border-slate-100 text-slate-700'}">${n(m.team2)}</button></div>`;
                 grid.appendChild(card);
             });
             restList.innerHTML = '';
